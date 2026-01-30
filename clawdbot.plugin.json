@@ -1,0 +1,8 @@
+{
+  "id": "vllm-local",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}
