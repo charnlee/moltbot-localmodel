@@ -1,6 +1,6 @@
 {
   "name": "@charnlee/vllm-local",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Moltbot plugin for connecting to locally deployed vLLM models",
   "author": "chengli <charnlee@163.com>",
@@ -30,7 +30,9 @@
     "type-check": "tsc --noEmit"
   },
   "moltbot": {
-    "extensions": ["./dist/index.js"]
+    "extensions": [
+      "./dist/index.js"
+    ]
   },
   "peerDependencies": {
     "moltbot": ">=0.1.0"
