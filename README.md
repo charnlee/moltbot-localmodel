@@ -12,26 +12,32 @@
 
 ## 📖 简介
 
-这是一个 Moltbot 插件，让你可以轻松连接本地 vLLM 部署的模型。只需要输入 base URL 和 model 名字，就可以开始使用！
+这是一个 Moltbot 插件，让你可以轻松连接本地 vLLM 部署的模型。通过简单的配置向导，就可以开始使用！
 
 ### ✨ 特性
 
 - ✅ 支持任何 vLLM 部署的模型
 - ✅ OpenAI 兼容 API
 - ✅ 支持多个模型实例
-- ✅ 简单配置（base URL + model 名字）
+- ✅ 交互式配置向导
 - ✅ 可选 API Key 认证
 - ✅ 自动配置上下文窗口和最大 token
+- ✅ 支持视觉模型配置
 
 ## 🚀 快速开始
 
-### 安装
+### 前置要求
+
+1. 已安装 Moltbot（版本 >= 0.1.0）
+2. 已本地部署模型
+
+### 安装插件
 
 ```bash
 # 从 NPM 安装（推荐）
 moltbot plugins install @charnlee/vllm-local
 
-# 或从 GitHub 安装
+# 或从本地源码安装
 git clone https://github.com/charnlee/moltbot-localmodel.git
 cd moltbot-localmodel
 npm install
@@ -39,125 +45,138 @@ npm run build
 moltbot plugins install .
 ```
 
-### 配置
+### 配置模型
 
-#### 方式 1: 使用命令行配置（推荐）
+安装插件后，使用 Moltbot 的认证命令来配置你的 vLLM 模型：
 
 ```bash
 moltbot models auth login --provider vllm-local
 ```
 
-会提示你输入：
-- Base URL (如: http://localhost:8000)
-- Model 名字 (如: Qwen2.5-7B-Instruct)
-- API Key (可选，直接回车跳过)
+系统会提示你选择配置方式：
 
-#### 方式 2: 手动编辑配置文件
+#### 方式 1: 手动配置（推荐）
 
-编辑 `~/.clawdbot/config.json5`:
+选择 "Manual Configuration" 后，系统会逐步询问：
 
-```json5
-{
-  plugins: {
-    entries: {
-      "vllm-local": {
-        enabled: true
-      }
-    }
-  },
-  models: {
-    providers: {
-      "vllm-local": {
-        baseUrl: "http://localhost:8000",
-        api: "openai-completions",
-        models: [
-          {
-            id: "your-model-name",
-            name: "Your Model Name (Local vLLM)",
-            api: "openai-completions",
-            reasoning: false,
-            input: ["text"],
-            cost: {
-              input: 0,      // 本地模型无成本
-              output: 0,
-              cacheRead: 0,
-              cacheWrite: 0
-            },
-            contextWindow: 32768,
-            maxTokens: 4096
-          }
-        ]
-      }
-    }
-  },
-  agents: {
-    defaults: {
-      model: "vllm-local/your-model-name"
-    }
-  }
-}
+1. **Base URL**: vLLM 服务器地址（如 `http://localhost:8000`）
+2. **Model Name**: 部署的模型名称（如 `Qwen2.5-7B-Instruct`）
+3. **API Key**: （可选）如果 vLLM 需要认证，输入 API Key
+4. **Context Window**: 上下文窗口大小（如 `32768`）
+5. **Max Tokens**: 最大输出 token 数（如 `4096`）
+6. **Vision Support**: 模型是否支持图像输入
+
+示例交互：
+
+```
+? Enter your vLLM server base URL: http://localhost:8000
+? Enter the model name: Qwen2.5-7B-Instruct
+? Enter API key (optional): [按 Enter 跳过]
+? Enter context window size (tokens): 32768
+? Enter max output tokens: 4096
+? Does this model support vision (images)? No
+
+✓ Configuration saved:
+  - Base URL: http://localhost:8000/v1
+  - Model: Qwen2.5-7B-Instruct
+  - Context window: 32768 tokens
+  - Max tokens: 4096
+  - Vision: disabled
 ```
 
-### 使用
+#### 方式 2: 环境变量
+
+选择 "Environment Variables" 后，插件会从环境变量读取配置：
 
 ```bash
-# 使用默认模型
-moltbot agent --message "你好，你是哪个模型？"
-
-# 指定模型
-moltbot agent --model vllm-local/your-model-name --message "介绍一下你自己"
-
-# 通过消息通道使用
-# 在飞书/Telegram 等渠道发送消息即可
+export VLLM_BASE_URL="http://localhost:8000"
+export VLLM_API_KEY="your-api-key"  # 可选
 ```
 
-## 📚 配置说明
+然后运行：
 
-### Base URL
+```bash
+moltbot models auth login --provider vllm-local
+```
 
-你的 vLLM 服务器地址，例如：
-- `http://localhost:8000` - 本地部署
-- `http://192.168.1.100:8000` - 局域网
-- `http://your-server.com:8000` - 远程服务器
+### 使用模型
 
-**注意**：不要在 URL 末尾加 `/v1`，插件会自动添加。
+配置完成后，你可以通过以下方式使用模型：
 
-### Model 名字
+```bash
+# 查看可用模型
+moltbot models list
 
-你在 vLLM 中部署的模型名称，例如：
-- `Qwen2.5-7B-Instruct`
-- `Qwen2.5-14B-Instruct`
-- `Meta-Llama-3.1-8B-Instruct`
-- 任何其他你部署的模型名
+# 使用模型（命令行）
+moltbot agent --model vllm-local/Qwen2.5-7B-Instruct --message "你好，介绍一下你自己"
 
-### API Key（可选）
+# 设置为默认模型
+moltbot config set agents.defaults.model vllm-local/Qwen2.5-7B-Instruct
 
-如果你的 vLLM 服务器需要认证，可以设置 API Key。
+# 使用默认模型
+moltbot agent --message "解释一下量子计算的原理"
+```
 
-## 🔧 高级配置
+### 在消息通道中使用
+
+配置完成后，可以在 Telegram、Discord、Slack 等任何已配置的消息通道中直接使用：
+
+```
+# 在 Telegram 中发送消息
+你好，你是哪个模型？
+
+# 切换到 vLLM 模型
+!model vllm-local/Qwen2.5-7B-Instruct
+
+# 继续对话
+介绍一下你自己
+```
+
+## 📚 高级配置
 
 ### 配置多个模型
 
+你可以多次运行配置命令来添加多个模型：
+
+```bash
+# 添加第一个模型
+moltbot models auth login --provider vllm-local
+# 输入第一个模型的信息...
+
+# 添加第二个模型
+moltbot models auth login --provider vllm-local
+# 输入第二个模型的信息...
+```
+
+或者手动编辑 `~/.clawdbot/config.json5`:
+
 ```json5
 {
   models: {
     providers: {
       "vllm-local": {
-        baseUrl: "http://localhost:8000",
+        baseUrl: "http://localhost:8000/v1",
+        api: "openai-completions",
         models: [
           {
-            id: "model-1",
-            name: "Model 1",
+            id: "Qwen2.5-7B-Instruct",
+            name: "Qwen2.5 7B Instruct",
+            api: "openai-completions",
+            reasoning: false,
+            input: ["text"],
+            cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
             contextWindow: 32768,
-            maxTokens: 4096,
-            // ... 其他配置
+            maxTokens: 4096
           },
           {
-            id: "model-2",
-            name: "Model 2 (Larger)",
-            contextWindow: 131072,
-            maxTokens: 8192,
-            // ... 其他配置
+            id: "Qwen2.5-14B-Instruct",
+            name: "Qwen2.5 14B Instruct",
+            api: "openai-completions",
+            reasoning: false,
+            input: ["text"],
+            cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+            contextWindow: 65536,
+            maxTokens: 8192
           }
         ]
       }
@@ -168,73 +187,93 @@ moltbot agent --model vllm-local/your-model-name --message "介绍一下你自�
 
 ### 配置多个 vLLM 实例
 
+如果你有多个 vLLM 服务器，可以分别配置：
+
 ```json5
 {
   models: {
     providers: {
-      "vllm-local-1": {
-        baseUrl: "http://server1:8000",
-        models: [...]
+      "vllm-local": {
+        baseUrl: "http://server1:8000/v1",
+        models: [/* 服务器 1 的模型 */]
       },
-      "vllm-local-2": {
-        baseUrl: "http://server2:8000",
-        models: [...]
+      "vllm-local-gpu2": {
+        baseUrl: "http://server2:8000/v1",
+        models: [/* 服务器 2 的模型 */]
       }
     }
   }
 }
 ```
 
-## 🧪 测试
+### 视觉模型配置
 
-### 测试连接
+对于支持图像输入的模型（如 Qwen-VL），在配置时选择 "Yes" 启用视觉支持：
+
+```
+? Does this model support vision (images)? Yes
+```
+
+配置后可以发送图片：
 
 ```bash
-# 列出可用模型
+moltbot agent --model vllm-local/Qwen-VL --message "描述这张图片" --image /path/to/image.jpg
+```
+
+## 🧪 测试与验证
+
+### 验证插件安装
+
+```bash
+# 列出已安装的插件
+moltbot plugins list
+
+# 应该看到 vllm-local 插件
+```
+
+### 验证模型配置
+
+```bash
+# 列出所有可用模型
 moltbot models list
 
-# 测试发送消息
+# 应该看到 vllm-local/* 模型
+```
+
+### 测试模型连接
+
+```bash
+# 发送测试消息
 moltbot agent --model vllm-local/your-model-name --message "你好"
+
+# 检查响应
 ```
 
-### 使用 curl 测试 vLLM 服务器
+
+## 🔧 开发
+
+### 从源码构建
 
 ```bash
-curl --request POST \
-  --url http://localhost:8000/v1/chat/completions \
-  --header 'Content-Type: application/json' \
-  --data '{
-    "model": "your-model-name",
-    "messages": [
-      {
-        "role": "user",
-        "content": "你好，你是哪个模型？"
-      }
-    ]
-  }'
+git clone https://github.com/charnlee/moltbot-localmodel.git
+cd moltbot-localmodel
+npm install
+npm run build
 ```
 
-## 📝 vLLM 部署参考
-
-### 启动 vLLM 服务器
+### 本地测试
 
 ```bash
-# 基础启动
-python -m vllm.entrypoints.openai.api_server \
-  --model /path/to/your-model \
-  --served-model-name your-model-name \
-  --host 0.0.0.0 \
-  --port 8000
+# 安装到本地 Moltbot
+moltbot plugins install .
 
-# 带 GPU 配置
-python -m vllm.entrypoints.openai.api_server \
-  --model /path/to/your-model \
-  --served-model-name your-model-name \
-  --host 0.0.0.0 \
-  --port 8000 \
-  --gpu-memory-utilization 0.9 \
-  --max-model-len 32768
+# 查看日志
+moltbot gateway run --verbose
 ```
+
+## 📄 License
+
+MIT License - 详见 [LICENSE](LICENSE) 文件
 
 ---
 

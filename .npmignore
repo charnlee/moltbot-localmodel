@@ -1,0 +1,44 @@
+# Source files (only ship dist/)
+*.ts
+!*.d.ts
+tsconfig.json
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# Development
+node_modules/
+src/
+test/
+tests/
+*.test.ts
+*.spec.ts
+
+# Documentation (keep README, LICENSE)
+CONTRIBUTING.md
+docs/
+
+# Build tools
+.editorconfig
+.prettierrc
+.prettierrc.json
+.eslintrc
+.eslintrc.json
+
+# Misc
+.DS_Store
+*.log
+coverage/
+.nyc_output/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
