@@ -28,14 +28,15 @@
 ### 安装
 
 ```bash
-# 从本地安装
-cd vllm-local
+# 从 NPM 安装（推荐）
+moltbot plugins install @charnlee/vllm-local
+
+# 或从 GitHub 安装
+git clone https://github.com/charnlee/moltbot-localmodel.git
+cd moltbot-localmodel
 npm install
 npm run build
 moltbot plugins install .
-
-# 或从 NPM 安装
-moltbot plugins install @moltbot-china/vllm-local
 ```
 
 ### 配置
@@ -47,8 +48,8 @@ moltbot models auth login --provider vllm-local
 ```
 
 会提示你输入：
-- Base URL (如: http://tanglian.bodesitech.com:8000)
-- Model 名字 (如: Qwen3-32B)
+- Base URL (如: http://localhost:8000)
+- Model 名字 (如: Qwen2.5-7B-Instruct)
 - API Key (可选，直接回车跳过)
 
 #### 方式 2: 手动编辑配置文件
@@ -67,12 +68,12 @@ moltbot models auth login --provider vllm-local
   models: {
     providers: {
       "vllm-local": {
-        baseUrl: "http://tanglian.bodesitech.com:8000",
+        baseUrl: "http://localhost:8000",
         api: "openai-completions",
         models: [
           {
-            id: "Qwen3-32B",
-            name: "Qwen3-32B (Local vLLM)",
+            id: "your-model-name",
+            name: "Your Model Name (Local vLLM)",
             api: "openai-completions",
             reasoning: false,
             input: ["text"],
@@ -91,7 +92,7 @@ moltbot models auth login --provider vllm-local
   },
   agents: {
     defaults: {
-      model: "vllm-local/Qwen3-32B"
+      model: "vllm-local/your-model-name"
     }
   }
 }
@@ -104,7 +105,7 @@ moltbot models auth login --provider vllm-local
 moltbot agent --message "你好，你是哪个模型？"
 
 # 指定模型
-moltbot agent --model vllm-local/Qwen3-32B --message "介绍一下你自己"
+moltbot agent --model vllm-local/your-model-name --message "介绍一下你自己"
 
 # 通过消息通道使用
 # 在飞书/Telegram 等渠道发送消息即可
@@ -117,17 +118,17 @@ moltbot agent --model vllm-local/Qwen3-32B --message "介绍一下你自己"
 你的 vLLM 服务器地址，例如：
 - `http://localhost:8000` - 本地部署
 - `http://192.168.1.100:8000` - 局域网
-- `http://tanglian.bodesitech.com:8000` - 远程服务器
+- `http://your-server.com:8000` - 远程服务器
 
 **注意**：不要在 URL 末尾加 `/v1`，插件会自动添加。
 
 ### Model 名字
 
 你在 vLLM 中部署的模型名称，例如：
-- `Qwen3-32B`
-- `Qwen2.5-72B-Instruct`
-- `Meta-Llama-3-70B`
-- 任何其他模型名
+- `Qwen2.5-7B-Instruct`
+- `Qwen2.5-14B-Instruct`
+- `Meta-Llama-3.1-8B-Instruct`
+- 任何其他你部署的模型名
 
 ### API Key（可选）
 
@@ -142,18 +143,18 @@ moltbot agent --model vllm-local/Qwen3-32B --message "介绍一下你自己"
   models: {
     providers: {
       "vllm-local": {
-        baseUrl: "http://tanglian.bodesitech.com:8000",
+        baseUrl: "http://localhost:8000",
         models: [
           {
-            id: "Qwen3-32B",
-            name: "Qwen3-32B",
+            id: "model-1",
+            name: "Model 1",
             contextWindow: 32768,
             maxTokens: 4096,
             // ... 其他配置
           },
           {
-            id: "Qwen2.5-72B-Instruct",
-            name: "Qwen2.5-72B (Larger)",
+            id: "model-2",
+            name: "Model 2 (Larger)",
             contextWindow: 131072,
             maxTokens: 8192,
             // ... 其他配置
@@ -193,17 +194,17 @@ moltbot agent --model vllm-local/Qwen3-32B --message "介绍一下你自己"
 moltbot models list
 
 # 测试发送消息
-moltbot agent --model vllm-local/Qwen3-32B --message "你好"
+moltbot agent --model vllm-local/your-model-name --message "你好"
 ```
 
 ### 使用 curl 测试 vLLM 服务器
 
 ```bash
 curl --request POST \
-  --url http://tanglian.bodesitech.com:8000/v1/chat/completions \
+  --url http://localhost:8000/v1/chat/completions \
   --header 'Content-Type: application/json' \
   --data '{
-    "model": "Qwen3-32B",
+    "model": "your-model-name",
     "messages": [
       {
         "role": "user",
@@ -220,15 +221,15 @@ curl --request POST \
 ```bash
 # 基础启动
 python -m vllm.entrypoints.openai.api_server \
-  --model Qwen/Qwen2.5-32B-Instruct \
-  --served-model-name Qwen3-32B \
+  --model /path/to/your-model \
+  --served-model-name your-model-name \
   --host 0.0.0.0 \
   --port 8000
 
 # 带 GPU 配置
 python -m vllm.entrypoints.openai.api_server \
-  --model Qwen/Qwen2.5-32B-Instruct \
-  --served-model-name Qwen3-32B \
+  --model /path/to/your-model \
+  --served-model-name your-model-name \
   --host 0.0.0.0 \
   --port 8000 \
   --gpu-memory-utilization 0.9 \
