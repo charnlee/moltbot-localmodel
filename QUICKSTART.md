@@ -5,7 +5,12 @@
 ### 1️⃣ 安装插件
 
 ```bash
-cd /Users/chengli/project-test/moltbot-china-plugins/vllm-local
+# 从 NPM 安装（推荐）
+moltbot plugins install @charnlee/vllm-local
+
+# 或从源码安装
+git clone https://github.com/charnlee/moltbot-localmodel.git
+cd moltbot-localmodel
 npm install
 npm run build
 moltbot plugins install .
@@ -21,10 +26,10 @@ moltbot models auth login --provider vllm-local
 
 ```
 ? 输入 vLLM 服务器地址（base URL）
-  http://tanglian.bodesitech.com:8000
+  http://localhost:8000
 
 ? 输入模型名称
-  Qwen3-32B
+  your-model-name
 
 ? 输入 API Key（可选，没有则直接回车）
   [直接回车跳过]
@@ -34,10 +39,10 @@ moltbot models auth login --provider vllm-local
 
 ```bash
 # 测试
-moltbot agent --model vllm-local/Qwen3-32B --message "你好，你是哪个模型？"
+moltbot agent --model vllm-local/your-model-name --message "你好，你是哪个模型？"
 
 # 设为默认模型
-moltbot config set agents.defaults.model vllm-local/Qwen3-32B
+moltbot config set agents.defaults.model vllm-local/your-model-name
 
 # 然后就可以直接用了
 moltbot agent --message "介绍一下你自己"
@@ -61,10 +66,10 @@ moltbot models auth login --provider vllm-local
 
 ```bash
 curl --request POST \
-  --url http://tanglian.bodesitech.com:8000/v1/chat/completions \
+  --url http://localhost:8000/v1/chat/completions \
   --header 'Content-Type: application/json' \
   --data '{
-    "model": "Qwen3-32B",
+    "model": "your-model-name",
     "messages": [
       {"role": "user", "content": "你好"}
     ]
