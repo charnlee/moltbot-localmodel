@@ -1,6 +1,6 @@
 {
   "name": "@charnlee/vllm-local",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "type": "module",
   "description": "Moltbot plugin for connecting to locally deployed vLLM models",
   "author": "chengli <charnlee@163.com>",
@@ -35,7 +35,7 @@
     "rebuild": "npm run clean && npm run build",
     "prepublishOnly": "npm run rebuild"
   },
-  "moltbot": {
+  "clawdbot": {
     "extensions": [
       "./dist/index.js"
     ]
